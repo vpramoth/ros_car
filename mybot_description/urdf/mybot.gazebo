@@ -1,0 +1,165 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+ <gazebo>
+   <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+     <robotNamespace>/mybot</robotNamespace>
+   </plugin>
+ </gazebo>
+
+ <gazebo>
+  <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+    <alwaysOn>false</alwaysOn>
+    <updateRate>100</updateRate>
+    <leftJoint>right_wheel_hinge</leftJoint>
+    <rightJoint>left_wheel_hinge</rightJoint>
+    <wheelSeparation>${chassisWidth+wheelWidth}</wheelSeparation>
+    <wheelDiameter>${2*wheelRadius}</wheelDiameter>
+    <torque>30</torque>
+    <commandTopic>mybot/cmd_vel</commandTopic>
+    <odometryTopic>mybot/odom_diffdrive</odometryTopic>
+    <odometryFrame>odom</odometryFrame>
+    <robotBaseFrame>footprint</robotBaseFrame>
+    
+  </plugin>
+
+</gazebo>
+
+ <gazebo>
+  <plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
+    <frameName>map</frameName>
+    <bodyName>chassis</bodyName>
+    <topicName>mybot/odom</topicName>
+    <updateRate>30.0</updateRate>
+  </plugin>
+</gazebo>
+
+ <gazebo reference="chassis">
+  <!-- <material>Gazebo/Orange</material> -->
+ </gazebo>
+
+ <gazebo reference="caster_wheel">
+  <mu1>0.0</mu1>
+  <mu2>0.0</mu2>
+  <material>Gazebo/Grey</material>
+ </gazebo>  
+
+ <gazebo reference="front_camera_link">
+  <material>Gazebo/Grey</material>
+  <sensor type="camera" name="front_camera_sensor">
+      <update_rate>30.0</update_rate>
+      <camera name="front_camera">
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>800</width>
+          <height>800</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+      </camera>
+      <plugin name="front_camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>mybot/camera</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera_link</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+    </gazebo>
+
+<gazebo reference="back_camera_link">
+  <material>Gazebo/Grey</material>
+  <sensor type="camera" name="back_camera_sensor">
+      <update_rate>30.0</update_rate>
+      <camera name="back_camera">
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>800</width>
+          <height>800</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+      </camera>
+      <plugin name="back_camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>mybot/camera1</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera_link</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+    </gazebo>
+
+<joint name="hokuyo_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="-1 0 0.82" rpy="0 0 0"/>
+    <parent link="chassis"/>
+    <child link="hokuyo_link"/>
+  </joint>
+
+  <!-- Hokuyo Laser -->
+  <link name="hokuyo_link">
+   
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rrbot_description/meshes/hokuyo.dae"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+   <!-- hokuyo -->
+  <gazebo reference="hokuyo_link">
+    <sensor type="ray" name="head_hokuyo_sensor">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>true</visualize>
+      <update_rate>40</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>720</samples>
+            <resolution>5</resolution>
+            <min_angle>-1.570796</min_angle>
+            <max_angle>1.570796</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0</min>
+          <max>300.0</max>
+          <resolution>0.01</resolution>
+        </range>
+        
+      </ray>
+      <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
+        <topicName>/rrbot/laser/scan</topicName>
+        <frameName>hokuyo_link</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+</robot>
