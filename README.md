@@ -1,5 +1,4 @@
-# OBJECT DETECTION USING CAR CAMERAS AND SENSORS (ROS GAZEBO RVIZD
-detecting the objects from the front camera 
+# OBJECT DETECTION USING CAR CAMERAS AND SENSORS (ROS GAZEBO RVIZD)
 ----------------------------------------------------------------------------------------------------
 ### What does this project do?
 Project contains a car with front and rear cameras and a laser in the front. A simple world has been
